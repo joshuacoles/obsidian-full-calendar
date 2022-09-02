@@ -1,10 +1,17 @@
 import "./overrides.css";
 import { ItemView, Notice, TFile, WorkspaceLeaf } from "obsidian";
-import { Calendar } from "@fullcalendar/core";
+import { Calendar, EventSourceInput } from "@fullcalendar/core";
 import { renderCalendar } from "./calendar";
 import FullCalendarPlugin from "./main";
 import { EventModal } from "./modal";
-import { FCError, PLUGIN_SLUG } from "./types";
+import {
+	CalDAVSource,
+	FCError,
+	ICalSource,
+	ICloudSource,
+	LocalCalendarSource,
+	PLUGIN_SLUG,
+} from "./types";
 import {
 	dateEndpointsToFrontmatter,
 	eventApiToFrontmatter,
@@ -13,7 +20,7 @@ import { IcsSource } from "./models/IcsSource";
 import { NoteSource } from "./models/NoteSource";
 import { RemoteSource } from "./models/RemoteSource";
 import { renderOnboarding } from "./onboard";
-import { CalendarEvent, LocalEvent } from "./models/Event";
+import { CalendarEvent } from "./models/Event";
 import { NoteEvent } from "./models/NoteEvent";
 import { eventFromCalendarId } from "./models";
 
@@ -23,6 +30,7 @@ export class CalendarView extends ItemView {
 	calendar: Calendar | null;
 	plugin: FullCalendarPlugin;
 	cacheCallback: (file: TFile) => void;
+
 	constructor(leaf: WorkspaceLeaf, plugin: FullCalendarPlugin) {
 		super(leaf);
 		this.plugin = plugin;
@@ -64,7 +72,7 @@ export class CalendarView extends ItemView {
 	async onOpen() {
 		await this.plugin.loadSettings();
 		const noteSourcePromises = this.plugin.settings.calendarSources
-			.flatMap((s) => (s.type === "local" ? [s] : []))
+			.filter((s): s is LocalCalendarSource => s.type === "local")
 			.map(
 				(s) => new NoteSource(this.app.vault, this.app.metadataCache, s)
 			)
@@ -74,8 +82,8 @@ export class CalendarView extends ItemView {
 		container.empty();
 		let calendarEl = container.createEl("div");
 		const noteSourceResults = await Promise.all(noteSourcePromises);
-		const sources = noteSourceResults.flatMap((s) =>
-			s instanceof FCError ? [] : [s]
+		const sources = noteSourceResults.filter(
+			(s): s is EventSourceInput => !(s instanceof FCError)
 		);
 		if (
 			sources.length === 0 &&
@@ -90,12 +98,9 @@ export class CalendarView extends ItemView {
 			return;
 		}
 
-		let errs = noteSourceResults.flatMap((s) =>
-			s instanceof FCError ? [s] : []
-		);
-		for (const err of errs) {
-			new Notice(err.message);
-		}
+		noteSourceResults
+			.filter((s): s is FCError => s instanceof FCError)
+			.forEach((err) => new Notice(err.message));
 
 		this.calendar = renderCalendar(calendarEl, sources, {
 			eventClick: async (info) => {
@@ -157,7 +162,8 @@ export class CalendarView extends ItemView {
 					this.app.vault,
 					info.event.id
 				);
-				if (event instanceof LocalEvent) {
+
+				if (event) {
 					this.app.workspace.trigger("hover-link", {
 						event: info.jsEvent,
 						source: PLUGIN_SLUG,
@@ -172,7 +178,7 @@ export class CalendarView extends ItemView {
 		});
 
 		this.plugin.settings.calendarSources
-			.flatMap((s) => (s.type === "ical" ? [s] : []))
+			.filter((s): s is ICalSource => s.type === "ical")
 			.map((s) => new IcsSource(s))
 			.map((s) => s.toApi())
 			.forEach((resultPromise) =>
@@ -186,8 +192,9 @@ export class CalendarView extends ItemView {
 			);
 
 		this.plugin.settings.calendarSources
-			.flatMap((s) =>
-				s.type === "caldav" || s.type === "icloud" ? [s] : []
+			.filter(
+				(s): s is CalDAVSource | ICloudSource =>
+					s.type === "caldav" || s.type === "icloud"
 			)
 			.map((s) => new RemoteSource(s))
 			.map((s) => s.toApi())

@@ -14,6 +14,7 @@ import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import googleCalendarPlugin from "@fullcalendar/google-calendar";
 import iCalendarPlugin from "@fullcalendar/icalendar";
+import momentPlugin from "@fullcalendar/moment";
 
 interface ExtraRenderProps {
 	eventClick?: (info: EventClickArg) => void;
@@ -57,11 +58,15 @@ export function renderCalendar(
 			// Remote sources
 			googleCalendarPlugin,
 			iCalendarPlugin,
+
+			momentPlugin,
 		],
+
 		googleCalendarApiKey: "AIzaSyDIiklFwJXaLWuT_4y6I9ZRVVsPuf4xGrk",
 		initialView: isMobile ? "timeGrid3Days" : "timeGridWeek",
 		nowIndicator: true,
 		scrollTimeReset: false,
+		dayHeaderFormat: "ddd DD/MM",
 
 		headerToolbar: isMobile
 			? {
