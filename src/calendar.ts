@@ -15,6 +15,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import googleCalendarPlugin from "@fullcalendar/google-calendar";
 import iCalendarPlugin from "@fullcalendar/icalendar";
 import momentPlugin from "@fullcalendar/moment";
+import moment from "moment";
+import gbLocale from "@fullcalendar/core/locales/en-gb";
 
 interface ExtraRenderProps {
 	eventClick?: (info: EventClickArg) => void;
@@ -67,6 +69,23 @@ export function renderCalendar(
 		nowIndicator: true,
 		scrollTimeReset: false,
 		dayHeaderFormat: "ddd DD/MM",
+		dayHeaderDidMount: (mountArg) => {
+			const a = mountArg.el.find("a") as HTMLAnchorElement;
+
+			const localUrl = moment(mountArg.date).format("YYYY-MM-DD");
+			// const label = url.searchParams.get('file')
+
+			a.dataset.href = localUrl;
+			a.setAttribute("href", localUrl);
+
+			// @ts-ignore
+			a.part?.add("link");
+			// @ts-ignore
+			a.part?.add("internal-link");
+			a.classList.add("internal-link");
+			a.setAttribute("target", "_blank");
+			a.setAttribute("rel", "noopener");
+		},
 
 		headerToolbar: isMobile
 			? {
@@ -106,6 +125,10 @@ export function renderCalendar(
 		editable: modifyEvent && true,
 		eventDrop: modifyEventCallback,
 		eventResize: modifyEventCallback,
+
+		// TODO Make this an option and allow first day of week to list "default" as an option
+		locales: [gbLocale],
+		locale: "en-GB",
 
 		eventMouseEnter,
 	});
