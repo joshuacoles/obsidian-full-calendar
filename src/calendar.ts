@@ -70,7 +70,8 @@ export function renderCalendar(
 		scrollTimeReset: false,
 		dayHeaderFormat: "ddd DD/MM",
 		dayHeaderDidMount: (mountArg) => {
-			const a = mountArg.el.find("a") as HTMLAnchorElement;
+			const aa = mountArg.el.find("a") as HTMLAnchorElement;
+			const a = document.createElement("a");
 
 			const localUrl = moment(mountArg.date).format("YYYY-MM-DD");
 			// const label = url.searchParams.get('file')
@@ -85,6 +86,7 @@ export function renderCalendar(
 			a.classList.add("internal-link");
 			a.setAttribute("target", "_blank");
 			a.setAttribute("rel", "noopener");
+			aa.replaceWith(a);
 		},
 
 		headerToolbar: isMobile
