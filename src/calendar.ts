@@ -69,23 +69,23 @@ export function renderCalendar(
 		nowIndicator: true,
 		scrollTimeReset: false,
 		dayHeaderFormat: "ddd DD/MM",
-		dayHeaderDidMount: (mountArg) => {
-			const a = mountArg.el.find("a") as HTMLAnchorElement;
-
-			const localUrl = moment(mountArg.date).format("YYYY-MM-DD");
-			// const label = url.searchParams.get('file')
-
-			a.dataset.href = localUrl;
-			a.setAttribute("href", localUrl);
-
-			// @ts-ignore
-			a.part?.add("link");
-			// @ts-ignore
-			a.part?.add("internal-link");
-			a.classList.add("internal-link");
-			a.setAttribute("target", "_blank");
-			a.setAttribute("rel", "noopener");
-		},
+		// dayHeaderDidMount: (mountArg) => {
+		// 	const a = mountArg.el.find("a") as HTMLAnchorElement;
+		//
+		// 	const localUrl = moment(mountArg.date).format("YYYY-MM-DD");
+		// 	// const label = url.searchParams.get('file')
+		//
+		// 	a.dataset.href = localUrl;
+		// 	a.setAttribute("href", localUrl);
+		//
+		// 	// @ts-ignore
+		// 	a.part?.add("link");
+		// 	// @ts-ignore
+		// 	a.part?.add("internal-link");
+		// 	a.classList.add("internal-link");
+		// 	a.setAttribute("target", "_blank");
+		// 	a.setAttribute("rel", "noopener");
+		// },
 
 		headerToolbar: isMobile
 			? {
