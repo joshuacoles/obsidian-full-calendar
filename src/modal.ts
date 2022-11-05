@@ -128,11 +128,11 @@ export class EventModal extends Modal {
 				deleteEvent:
 					this.event instanceof LocalEvent
 						? async () => {
-							if (this.event instanceof LocalEvent) {
-								await this.event.delete();
-								this.close();
-							}
-						}
+								if (this.event instanceof LocalEvent) {
+									await this.event.delete();
+									this.close();
+								}
+						  }
 						: undefined,
 			}),
 			contentEl
