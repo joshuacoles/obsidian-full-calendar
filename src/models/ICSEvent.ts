@@ -1,9 +1,10 @@
-import { MetadataCache, Vault } from "obsidian";
-import { EventFrontmatter } from "src/types";
+import { MetadataCache, TFile, Vault, WorkspaceLeaf } from "obsidian";
+import { EventFrontmatter, FCError } from "src/types";
 import { CalendarEvent } from "./Event";
 
 export class ICSEvent extends CalendarEvent {
 	id: string;
+	path: string;
 
 	static ID_PREFIX = "ics";
 
@@ -15,6 +16,18 @@ export class ICSEvent extends CalendarEvent {
 	) {
 		super(cache, vault, data);
 		this.id = id;
+		this.path = `${"directory"}/${id}.md`;
+	}
+
+	async openIn(leaf: WorkspaceLeaf): Promise<void> {
+		const file = this.vault.getAbstractFileByPath(this.path);
+		if (file instanceof TFile) {
+			await leaf.openFile(file);
+		} else {
+			throw new FCError(
+				`Cannot find file for ICSEvent with ID ${this.id}.`
+			);
+		}
 	}
 
 	get PREFIX(): string {

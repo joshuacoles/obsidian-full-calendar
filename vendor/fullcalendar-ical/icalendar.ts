@@ -183,7 +183,11 @@ export function expandICalEvents(
 }
 
 function buildNonDateProps(iCalEvent: ICAL.Event): EventInput {
+	// TODO Probably best to either use this URL or the ICAL.Event.uid / id property to identify notes
+	//	Note if we want to support recurring event occurances having separate notes then may involve more things
+
 	return {
+		id: iCalEvent.uid,
 		title: iCalEvent.summary,
 		url: extractEventUrl(iCalEvent),
 		extendedProps: {
